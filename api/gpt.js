@@ -2,7 +2,7 @@ import { Configuration, OpenAIApi } from "openai"
 import csv from "csv-parser"
 import fs from "fs"
 
-const gptApiKey = process.env.NEXT_PUBLIC_OPENAI_API_KEY
+const gptApiKey = process.env.OPENAI_API_KEY
 const configuration = new Configuration({
   apiKey: gptApiKey,
 })
