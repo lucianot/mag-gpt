@@ -18,13 +18,8 @@ async function gptEmbedding(prompt) {
     })
     return embeddingResponse["data"]["data"][0]["embedding"]
   } catch (e) {
-    if (e.response) {
-      console.log(e.response.status)
-      console.log(e.response.data)
-    } else {
-      console.log(e.message)
-    }
-    // throw e
+    console.log("Error getting GPT embedding: ", e)
+    throw e
   }
 }
 
@@ -38,13 +33,8 @@ async function gptCompletion(prompt) {
     })
     return response
   } catch (e) {
-    if (e.response) {
-      console.log(e.response.status)
-      console.log(e.response.data)
-    } else {
-      console.log(e.message)
-    }
-    // throw e
+    console.log("Error getting GPT completion: ", e)
+    throw e
   }
 }
 
@@ -99,31 +89,35 @@ function preparePrompt(question, bestResponse) {
 }
 
 async function getGPTResponse(question) {
-  console.log("--------------------")
+  console.log("\n\n\n\n--------------------")
 
-  // get the embedding
-  console.log("Fetching embedding for: ", question)
-  const questionEmbedding = await gptEmbedding(question)
-  console.log("Received embedding!")
-  console.log("--------------------")
+  try {
+    // get the embedding
+    console.log("Fetching embedding for: ", question)
+    const questionEmbedding = await gptEmbedding(question)
+    console.log("Received embedding!")
+    console.log("--------------------")
 
-  // find the closest response
-  console.log("Finding best response...")
-  const bestResponse = await searchForBestEmbedding(questionEmbedding, "./data/embeddings.csv")
-  console.log("Best response: ", bestResponse)
-  console.log("--------------------")
+    // find the closest response
+    console.log("Finding best response...")
+    const bestResponse = await searchForBestEmbedding(questionEmbedding, "./data/embeddings.csv")
+    console.log("Best response: ", bestResponse)
+    console.log("--------------------")
 
-  // prepare prompt
-  const prompt = preparePrompt(question, bestResponse)
-  console.log("Prompt: ", prompt)
-  console.log("--------------------")
+    // prepare prompt
+    const prompt = preparePrompt(question, bestResponse)
+    console.log("Prompt: ", prompt)
+    console.log("--------------------")
 
-  // get the response
-  const completion = await gptCompletion(prompt)
-  console.log("Received completion: ", completion["data"])
-  console.log("--------------------")
-
-  return completion
+    // get the response
+    const completion = await gptCompletion(prompt)
+    console.log("Received completion: ", completion["data"])
+    console.log("--------------------")
+    return completion.data.choices[0].text
+  } catch (e) {
+    console.log("Error: ", e)
+    return "Houve um erro ao processar a sua pergunta. Tente novamente."
+  }
 }
 
 export default getGPTResponse
