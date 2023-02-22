@@ -50,9 +50,7 @@ async function searchForBestEmbedding(questionEmbedding, embeddingsFile) {
   let maxSimilarity = 0
   let maxSimilarityAnswer = ""
 
-  console.log("Opening embeddings file: ", embeddingsFile)
-
-  const promise = new Promise((resolve, reject) => {
+  const maxSimilarityAnswerPromise = new Promise((resolve, reject) => {
     fs.createReadStream(embeddingsFile)
       .pipe(csv())
       .on("data", (row) => {
@@ -73,7 +71,7 @@ async function searchForBestEmbedding(questionEmbedding, embeddingsFile) {
       })
   })
 
-  return promise
+  return maxSimilarityAnswerPromise
 }
 
 function cosineSimilarity(vector1, vector2) {
