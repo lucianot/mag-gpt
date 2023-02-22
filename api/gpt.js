@@ -1,12 +1,14 @@
 import { Configuration, OpenAIApi } from "openai"
 import csv from "csv-parser"
 import fs from "fs"
+import path from "path"
 
 const gptApiKey = process.env.OPENAI_API_KEY
 const configuration = new Configuration({
   apiKey: gptApiKey,
 })
 const openai = new OpenAIApi(configuration)
+const file = path.join(process.cwd(), "data", "embeddings.csv")
 
 async function gptEmbedding(prompt) {
   try {
@@ -22,7 +24,7 @@ async function gptEmbedding(prompt) {
     } else {
       console.log(e.message)
     }
-    throw e
+    // throw e
   }
 }
 
@@ -42,16 +44,16 @@ async function gptCompletion(prompt) {
     } else {
       console.log(e.message)
     }
-    throw e
+    // throw e
   }
 }
 
-async function searchForBestEmbedding(questionEmbedding, embeddingsFile) {
+async function searchForBestEmbedding(questionEmbedding, file) {
   let maxSimilarity = 0
   let maxSimilarityAnswer = ""
 
   const maxSimilarityAnswerPromise = new Promise((resolve, reject) => {
-    fs.createReadStream(embeddingsFile)
+    fs.createReadStream(file)
       .pipe(csv())
       .on("data", (row) => {
         const answerEmbedding = row["embedding"].split(",").map(parseFloat)
