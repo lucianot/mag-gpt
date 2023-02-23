@@ -54,7 +54,7 @@ async function searchForBestEmbedding(questionEmbedding, file) {
         }
       })
       .on("end", () => {
-        console.log("Found best answer!")
+        // console.log("Found best answer!")
         resolve(maxSimilarityAnswer)
       })
       .on("error", (error) => {
@@ -90,25 +90,22 @@ function preparePrompt(question, bestResponse) {
 
 async function getGPTResponse(question) {
   console.log("\n\n\n\n--------------------")
-  console.time("Complete Answer: ")
+  console.time("Total time: ")
 
   try {
-    console.time("completeAnswer")
-
     // get the embedding
     console.log("Fetching embedding for: ", question)
-    console.time("gptEmbedding")
+    console.time("Fetched GPT Embedding: ")
     const questionEmbedding = await gptEmbedding(question)
-    console.log("Received embedding!")
-    console.timeEnd("gptEmbedding")
+    console.timeEnd("Fetched GPT Embedding: ")
     console.log("--------------------")
 
     // find the closest response
     console.log("Finding best response...")
-    console.time("bestResponse")
+    console.time("Found best response: ")
     const bestResponse = await searchForBestEmbedding(questionEmbedding, "./data/embeddings.csv")
+    console.timeEnd("Found best response: ")
     console.log("Best response: ", bestResponse)
-    console.timeEnd("bestResponse")
     console.log("--------------------")
 
     // prepare prompt
@@ -117,13 +114,13 @@ async function getGPTResponse(question) {
     console.log("--------------------")
 
     // get the response
-    console.time("gptCompletion")
+    console.time("Fetched GPT Completion: ")
     const completion = await gptCompletion(prompt)
-    console.log("Received completion: ", completion["data"])
-    console.timeEnd("gptCompletion")
+    console.timeEnd("Fetched GPT Completion: ")
+    console.log("Completion: ", completion["data"])
     console.log("--------------------")
 
-    console.timeEnd("Complete Answer: ")
+    console.timeEnd("Total time: ")
     return completion.data.choices[0].text
   } catch (e) {
     console.log("Error: ", e)
