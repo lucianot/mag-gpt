@@ -90,18 +90,25 @@ function preparePrompt(question, bestResponse) {
 
 async function getGPTResponse(question) {
   console.log("\n\n\n\n--------------------")
+  console.time("Complete Answer: ")
 
   try {
+    console.time("completeAnswer")
+
     // get the embedding
     console.log("Fetching embedding for: ", question)
+    console.time("gptEmbedding")
     const questionEmbedding = await gptEmbedding(question)
     console.log("Received embedding!")
+    console.timeEnd("gptEmbedding")
     console.log("--------------------")
 
     // find the closest response
     console.log("Finding best response...")
+    console.time("bestResponse")
     const bestResponse = await searchForBestEmbedding(questionEmbedding, "./data/embeddings.csv")
     console.log("Best response: ", bestResponse)
+    console.timeEnd("bestResponse")
     console.log("--------------------")
 
     // prepare prompt
@@ -110,9 +117,13 @@ async function getGPTResponse(question) {
     console.log("--------------------")
 
     // get the response
+    console.time("gptCompletion")
     const completion = await gptCompletion(prompt)
     console.log("Received completion: ", completion["data"])
+    console.timeEnd("gptCompletion")
     console.log("--------------------")
+
+    console.timeEnd("Complete Answer: ")
     return completion.data.choices[0].text
   } catch (e) {
     console.log("Error: ", e)
