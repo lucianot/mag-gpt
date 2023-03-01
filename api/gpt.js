@@ -103,7 +103,7 @@ async function getGPTResponse(question) {
     // find the closest response
     console.log("Finding best response...")
     console.time("Found best response: ")
-    const bestResponse = await searchForBestEmbedding(questionEmbedding, "./data/embeddings.csv")
+    const bestResponse = await searchForBestEmbedding(questionEmbedding, file)
     console.timeEnd("Found best response: ")
     console.log("Best response: ", bestResponse)
     console.log("--------------------")
