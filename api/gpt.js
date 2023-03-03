@@ -23,21 +23,6 @@ async function gptEmbedding(prompt) {
   }
 }
 
-async function gptCompletion(prompt) {
-  try {
-    const response = await openai.createCompletion({
-      model: "text-davinci-003",
-      prompt: prompt,
-      max_tokens: 200,
-      temperature: 0.1,
-    })
-    return response
-  } catch (e) {
-    console.log("Error getting GPT completion: ", e)
-    throw e
-  }
-}
-
 async function searchForBestEmbedding(questionEmbedding, file) {
   let maxSimilarity = 0
   let maxSimilarityAnswer = ""
@@ -82,10 +67,39 @@ function cosineSimilarity(vector1, vector2) {
 }
 
 function preparePrompt(question, bestResponse) {
-  const header = `Responda a pergunta da maneira mais verídica possível utilizando o contexto informado, e se a resposta não estiver contida no texto abaixo, diga simplesmente "Eu não sei a resposta."\n\nContexto:\n`
-  const questionSection = `Pergunta: ${question}\nResposta:`
-  const prompt = header + bestResponse + "\n\n" + questionSection
-  return prompt
+  const context = `Você é um assistente prestativo e preciso. Responda a pergunta da maneira mais verídica possível utilizando o contexto informado, e se a resposta não estiver contida no texto abaixo, diga simplesmente "Eu não sei a resposta."\n\nContexto:\n`
+  const systemContent = context + bestResponse
+  const messages = [
+    { role: "system", content: systemContent },
+    { role: "user", content: question },
+  ]
+
+  return messages
+}
+
+async function gptCompletion(messages) {
+  try {
+    const response = await openai.createChatCompletion({
+      model: "gpt-3.5-turbo",
+      messages: messages,
+      // max_tokens: 1000,
+      temperature: 0.4,
+    })
+
+    return parseResponse(response)
+  } catch (e) {
+    console.log("Error getting GPT completion: ", e)
+    throw e
+  }
+}
+
+function parseResponse(response) {
+  const { data } = response
+  const { choices } = data
+
+  console.log("Choices: ", choices)
+
+  return choices[0]?.message?.content
 }
 
 async function getGPTResponse(question) {
@@ -105,23 +119,24 @@ async function getGPTResponse(question) {
     console.time("Found best response: ")
     const bestResponse = await searchForBestEmbedding(questionEmbedding, file)
     console.timeEnd("Found best response: ")
-    console.log("Best response: ", bestResponse)
+    // console.log("Best response: ", bestResponse)
     console.log("--------------------")
 
     // prepare prompt
-    const prompt = preparePrompt(question, bestResponse)
-    console.log("Prompt: ", prompt)
+    const messages = preparePrompt(question, bestResponse)
+    console.log("Messages: ", messages)
     console.log("--------------------")
 
     // get the response
     console.time("Fetched GPT Completion: ")
-    const completion = await gptCompletion(prompt)
+    const answer = await gptCompletion(messages)
     console.timeEnd("Fetched GPT Completion: ")
-    console.log("Completion: ", completion["data"])
+    console.log("Completion: ", answer)
+
     console.log("--------------------")
 
     console.timeEnd("Total time: ")
-    return completion.data.choices[0].text
+    return answer
   } catch (e) {
     console.log("Error: ", e)
     return "Houve um erro ao processar a sua pergunta. Tente novamente."
