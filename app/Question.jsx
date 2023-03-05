@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { IconArrowRight, IconSearch, IconLoaderQuarter } from "@tabler/icons-react"
+import { IconArrowRight, IconSearch } from "@tabler/icons-react"
 
 export default function Question({ question }) {
   const [prompt, setPrompt] = useState("")
