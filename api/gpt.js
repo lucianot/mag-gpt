@@ -83,7 +83,7 @@ async function gptCompletion(messages) {
       model: "gpt-3.5-turbo",
       messages: messages,
       // max_tokens: 1000,
-      temperature: 0.4,
+      temperature: 0.1,
     })
 
     return parseResponse(response)
@@ -120,7 +120,7 @@ async function getGPTResponse(question) {
     const bestResponse = await searchForBestEmbedding(questionEmbedding, file)
     console.timeEnd("Found best response: ")
     // console.log("Best response: ", bestResponse)
-    console.log("--------------------")
+    // console.log("--------------------")
 
     // prepare prompt
     const messages = preparePrompt(question, bestResponse)
@@ -132,7 +132,6 @@ async function getGPTResponse(question) {
     const answer = await gptCompletion(messages)
     console.timeEnd("Fetched GPT Completion: ")
     console.log("Completion: ", answer)
-
     console.log("--------------------")
 
     console.timeEnd("Total time: ")

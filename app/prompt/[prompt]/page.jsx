@@ -1,25 +1,19 @@
-import Logo from "../../Logo"
-import Prompt from "../../Prompt"
-import Response from "../../Response"
-import getGPTResponse from "../../../api/gpt"
+import Question from "../../Question"
+import Response from "./Response"
+import Loading from "./Loading"
 import { Suspense } from "react"
 
-async function GPTResponse({ params }) {
+export default function GPTResponse({ params }) {
   const { prompt } = params
   const decodedPrompt = decodeURIComponent(prompt)
-  const response = await getGPTResponse(decodedPrompt)
+  const key = Math.floor(Math.random() * 1000000 + 1)
 
   return (
-    <main className="bg-blueGray-100 min-h-screen font-sans">
-      <div className="flex flex-col justify-center items-center pt-10">
-        <Logo />
-        <Prompt question={decodedPrompt} />
-        <Suspense fallback={<p>Loading...</p>}>
-          <Response response={response} />
-        </Suspense>
-      </div>
-    </main>
+    <>
+      <Question question={decodedPrompt} />
+      <Suspense fallback={<Loading />}>
+        <Response key={key} prompt={decodedPrompt} />
+      </Suspense>
+    </>
   )
 }
-
-export default GPTResponse
